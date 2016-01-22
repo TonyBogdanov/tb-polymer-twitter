@@ -1,0 +1,197 @@
+<script>
+    TBPolymerTwitterBase            = {
+        properties:                 {
+            activate:               {
+                type:               Boolean,
+                reflectToAttribute: true,
+                value:              false
+            },
+
+            apiKey:                 {
+                type:               String,
+                reflectToAttribute: true,
+                value:              ''
+            },
+
+            username:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              'tony_bogdanov'
+            },
+
+            offset:                 {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              0
+            },
+
+            limit:                  {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              10
+            },
+
+            ttl:                    {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              900
+            },
+
+            template:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>Items:</p>{{start}}{{item}}<hr />{{stop}}'
+            },
+
+            templateItem:           {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>date: {{date}}<br />url: {{url}}<br />text: {{text}}, html: {{html}}<br />' +
+                'user.name: {{user.name}}<br />user.screen_name: {{user.screen_name}}<br />user.url: {{user.url}}</p>'
+            },
+
+            templateError:          {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>{{message}}</p>'
+            },
+
+            templateSpinner:        {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<paper-spinner active></paper-spinner>'
+            },
+
+            skin:                   {
+                type:               String,
+                reflectToAttribute: true,
+                value:              ''
+            }
+        },
+
+        _apiURL:                    'http://api.tonybogdanov.com/twitter',
+
+        ready:                      function() {
+            this.loadSkin();
+            if(this.activate) {
+                this.loadItems();
+            }
+        },
+
+        onFetchSuccess:             function(data) {
+            $(this).html(this.prepareTemplate(data.items));
+        },
+
+        onFetchError:               function(message) {
+            this.onError(message);
+        },
+
+        onError:                    function(message) {
+            $(this).html(this.templateError.replace('{{message}}', message));
+        },
+
+        filter:                     function(name, value) {
+            return value;
+        },
+
+        prepareTemplate:            function(items) {
+            var startIdx            = this.template.indexOf('{{start}}');
+            var itemIdx             = this.template.indexOf('{{item}}');
+            var stopIdx             = this.template.indexOf('{{stop}}');
+
+            if(0 > startIdx) {
+                return this.onError('Missing template token: {{start}}');
+            } else if(0 > itemIdx) {
+                return this.onError('Missing template token: {{item}}');
+            } else if(startIdx > itemIdx) {
+                return this.onError('Template token {{start}} must be before token {{item}}');
+            } else if(0 > stopIdx) {
+                return this.onError('Missing template token: {{stop}}');
+            } else if(stopIdx < itemIdx) {
+                return this.onError('Template token {{stop}} must be after token {{item}}');
+            }
+
+            var self                = this;
+            var result              = this.template.substr(0, startIdx);
+            var loop                = this.template.substr(startIdx + 9, stopIdx - startIdx - 9);
+
+            $.each(items, function() {
+                result              += loop.replace('{{item}}', self.prepareTemplateItem(this));
+            });
+
+            return result + this.template.substr(stopIdx + 8);
+        },
+
+        prepareTemplateItem:        function(data) {
+            var map                 = {};
+            var flatten             = function(keys, data) {
+                for(var key in data) {
+                    keys.push(key);
+
+                    if('object' == typeof data[key]) {
+                        flatten(keys, data[key]);
+                    } else {
+                        map[keys.join('.')] = data[key];
+                    }
+
+                    keys.pop();
+                }
+            };
+            flatten([], data);
+
+            var result              = this.templateItem;
+            for(var key in map) {
+                result              = result.replace('{{' + key + '}}', this.filter(key, map[key]));
+            }
+
+            return result;
+        },
+
+        loadSkin:                   function() {
+            if(0 == this.skin.length) {
+                return;
+            }
+
+            var lookup              = 'tbPolymerTwitterSkin' + this.skin.substring(0, 1).toUpperCase() +
+                    this.skin.substring(1);
+
+            if('function' != typeof window[lookup]) {
+                return this.onError('No such skin: ' + lookup);
+            }
+
+            window[lookup].call(this);
+        },
+
+        loadItems:                  function() {
+            var self                = this;
+
+            if(this.templateSpinner.length) {
+                $(this).html(this.templateSpinner);
+            }
+
+            $.ajax({
+                url:                this._apiURL,
+                data:               {
+                    api_key:        this.apiKey,
+                    username:       this.username,
+                    limit:          this.offset + ',' + this.limit,
+                    ttl:            this.ttl
+                },
+                success:            function(data) {
+                    if('undefined' != typeof data.error) {
+                        self.onFetchError('API error: ' + data.error);
+                    } else if('object' != typeof data.items) {
+                        self.onFetchError('API error: unknown');
+                    } else {
+                        self.onFetchSuccess(data);
+                    }
+                },
+                error:              function() {
+                    self.onFetchError('Could not reach API: ' + self._apiURL);
+                },
+                method:             'POST',
+                dataType:           'json'
+            });
+        }
+    };
+</script>

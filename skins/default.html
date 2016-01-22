@@ -1,0 +1,19 @@
+<script>
+    tbPolymerTwitterSkinDefault         = function() {
+        // List
+        this.template                   = '<ul>{{start}}<li>{{item}}</li>{{stop}}</ul>';
+
+        // Better formatting
+        this.templateItem               = '<p>{{html}}</p><p><a href="{{url}}" target="_blank">{{date}}</a> by' +
+                ' <a href="{{user.url}}" title="@{{user.screen_name}}" target="_blank">{{user.name}}</a></p>';
+
+        // Value filtering
+        this.filter                     = function(name, value) {
+            switch(name) {
+                case 'date':
+                    return $.timeago(parseInt(value) * 1000);
+            }
+            return value;
+        };
+    };
+</script>
