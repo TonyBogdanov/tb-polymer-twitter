@@ -86,9 +86,8 @@
             widget = fixture('Raw');
         });
 
-        test('dummy', function() {
-//        expect(widget.getAttribute('role')).to.be.eql('button');
-            expect('test').to.be.eql('test');
+        test('default properties / attributes', function() {
+            expect(widget.getAttribute('api-key')).to.be.eql('');
         });
 
         a11ySuite('Raw');

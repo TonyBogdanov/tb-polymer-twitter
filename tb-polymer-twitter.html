@@ -15,59 +15,68 @@
 
 <script>
     Polymer({
-        is:                     'tb-polymer-twitter',
-        properties:             {
-            apiKey:             {
-                type:           String,
-                value:          ''
+        is:                         'tb-polymer-twitter',
+        properties:                 {
+            apiKey:                 {
+                type:               String,
+                reflectToAttribute: true,
+                value:              ''
             },
 
-            username:           {
-                type:           String,
-                value:          'tony_bogdanov'
+            username:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              'tony_bogdanov'
             },
 
-            offset:             {
-                type:           Number,
-                value:          0
+            offset:                 {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              0
             },
 
-            limit:              {
-                type:           Number,
-                value:          10
+            limit:                  {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              10
             },
 
-            ttl:                {
-                type:           Number,
-                value:          900
+            ttl:                    {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              900
             },
 
-            template:           {
-                type:           String,
-                value:          '<p>Items:</p>{{start}}{{item}}<hr />{{stop}}'
+            template:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>Items:</p>{{start}}{{item}}<hr />{{stop}}'
             },
 
-            templateItem:       {
-                type:           String,
-                value:          '<p>date: {{date}}<br />url: {{url}}<br />text: {{text}}, html: {{html}}<br />' +
+            templateItem:           {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>date: {{date}}<br />url: {{url}}<br />text: {{text}}, html: {{html}}<br />' +
                 'user.name: {{user.name}}<br />user.screen_name: {{user.screen_name}}<br />user.url: {{user.url}}</p>'
             },
 
-            templateError:      {
-                type:           String,
-                value:          '<p>{{message}}</p>'
+            templateError:          {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>{{message}}</p>'
             },
 
-            templateSpinner:    {
-                type:           String,
-                value:          '<paper-spinner active></paper-spinner>'
+            templateSpinner:        {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<paper-spinner active></paper-spinner>'
             }
         },
 
-        _apiURL:                'http://api.tonybogdanov.com/twitter',
+        _apiURL:                    'http://api.tonybogdanov.com/twitter',
 
-        ready:                  function() {
-            var $this           = $(this);
+        ready:                      function() {
+            var $this               = $(this);
 
             if(this.templateSpinner.length) {
                 $this.html(this.templateSpinner);
@@ -76,26 +85,26 @@
             this.loadItems();
         },
 
-        onFetchSuccess:         function(data) {
+        onFetchSuccess:             function(data) {
             $(this).html(this.prepareTemplate(data.items));
         },
 
-        onFetchError:           function(message) {
+        onFetchError:               function(message) {
             this.onError(message);
         },
 
-        onError:                function(message) {
+        onError:                    function(message) {
             $(this).html($('<p/>').text(message));
         },
 
-        filter:                 function(name, value) {
+        filter:                     function(name, value) {
             return value;
         },
 
-        prepareTemplate:        function(items) {
-            var startIdx        = this.template.indexOf('{{start}}');
-            var itemIdx         = this.template.indexOf('{{item}}');
-            var stopIdx         = this.template.indexOf('{{stop}}');
+        prepareTemplate:            function(items) {
+            var startIdx            = this.template.indexOf('{{start}}');
+            var itemIdx             = this.template.indexOf('{{item}}');
+            var stopIdx             = this.template.indexOf('{{stop}}');
 
             if(0 > startIdx) {
                 return this.onError('Missing template token: {{start}}');
@@ -109,20 +118,20 @@
                 return this.onError('Template token {{stop}} must be after token {{item}}');
             }
 
-            var self            = this;
-            var result          = this.template.substr(0, startIdx);
-            var loop            = this.template.substr(startIdx + 9, stopIdx - startIdx - 9);
+            var self                = this;
+            var result              = this.template.substr(0, startIdx);
+            var loop                = this.template.substr(startIdx + 9, stopIdx - startIdx - 9);
 
             $.each(items, function() {
-                result          += loop.replace('{{item}}', self.prepareTemplateItem(this));
+                result              += loop.replace('{{item}}', self.prepareTemplateItem(this));
             });
 
             return result + this.template.substr(stopIdx + 8);
         },
 
-        prepareTemplateItem:    function(data) {
-            var map             = {};
-            var flatten         = function(keys, data) {
+        prepareTemplateItem:        function(data) {
+            var map                 = {};
+            var flatten             = function(keys, data) {
                 for(var key in data) {
                     keys.push(key);
 
@@ -137,25 +146,25 @@
             };
             flatten([], data);
 
-            var result          = this.templateItem;
+            var result              = this.templateItem;
             for(var key in map) {
-                result          = this.filter(key, result.replace('{{' + key + '}}', map[key]));
+                result              = this.filter(key, result.replace('{{' + key + '}}', map[key]));
             }
 
             return result;
         },
 
-        loadItems:              function() {
-            var self            = this;
+        loadItems:                  function() {
+            var self                = this;
             $.ajax({
-                url:            this._apiURL,
-                data:           {
-                    api_key:    this.apiKey,
-                    username:   this.username,
-                    limit:      this.offset + ',' + this.limit,
-                    ttl:        this.ttl
+                url:                this._apiURL,
+                data:               {
+                    api_key:        this.apiKey,
+                    username:       this.username,
+                    limit:          this.offset + ',' + this.limit,
+                    ttl:            this.ttl
                 },
-                success:        function(data) {
+                success:            function(data) {
                     if('undefined' != typeof data.error) {
                         self.onFetchError('API error: ' + data.error);
                     } else if('object' != typeof data.items) {
@@ -164,11 +173,11 @@
                         self.onFetchSuccess(data);
                     }
                 },
-                error:          function() {
+                error:              function() {
                     self.onFetchError('Could not reach API: ' + self._apiURL);
                 },
-                method:         'POST',
-                dataType:       'json'
+                method:             'POST',
+                dataType:           'json'
             });
         }
     });
