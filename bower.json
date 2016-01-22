@@ -12,7 +12,7 @@
     "twitter",
     "widget"
   ],
-  "main": "polymer-twitter.html",
+  "main": "tb-polymer-twitter.html",
   "repository": {
     "type": "git",
     "url": "git://github.com/TonyBogdanov/tb-polymer-twitter"
