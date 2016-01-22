@@ -1,0 +1,34 @@
+{
+  "name": "tb-polymer-twitter",
+  "version": "1.0",
+  "description": "http://polymer-project.org compatible twitter widget",
+  "authors": [
+    "Tony Bogdanov <tonybogdanov@gmail.com>"
+  ],
+  "keywords": [
+    "web-components",
+    "web-component",
+    "polymer",
+    "twitter",
+    "widget"
+  ],
+  "main": "polymer-twitter.html",
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/TonyBogdanov/tb-polymer-twitter"
+  },
+  "license": "https://github.com/TonyBogdanov/tb-polymer-twitter/LICENSE.txt",
+  "homepage": "https://github.com/TonyBogdanov/tb-polymer-twitter",
+  "dependencies": {
+    "polymer": "Polymer/polymer#^1.1.0",
+    "jquery": "~2.2.0",
+    "paper-spinner": "PolymerElements/paper-spinner#~1.1.0"
+  },
+  "devDependencies": {
+    "webcomponentsjs": "webcomponents/webcomponentsjs#^0.7.0",
+    "web-component-tester": "^4.0.0",
+    "test-fixture": "polymerelements/test-fixture#^1.0.0",
+    "paper-styles": "PolymerElements/paper-styles#~1.1.2"
+  },
+  "ignore": []
+}
