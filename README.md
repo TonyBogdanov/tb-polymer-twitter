@@ -2,9 +2,8 @@
 
 [![Build Status](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter.svg?branch=master)](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter)
 
-[Demo](http://tonybogdanov.github.io/tb-polymer-twitter/demo/) |
-[Documentation](http://tonybogdanov.github.io/tb-polymer-twitter/) |
-[Tests](http://tonybogdanov.github.io/tb-polymer-twitter/test/)
+[Demo & Documentation](http://tonybogdanov.github.io/tb-polymer-twitter/components/tb-polymer-twitter/) |
+[Tests](http://tonybogdanov.github.io/tb-polymer-twitter/components/tb-polymer-twitter/test/)
 
 `<tb-polymer-twitter>` provides a flexible and extensible "widget"-like element for displaying twitter feeds
 based on this [API](http://api.tonybogdanov.com) and [Polymer](http://polymer-project.org).
