@@ -83,11 +83,38 @@
         var widget;
 
         setup(function() {
-            widget = fixture('Raw');
+            widget              = fixture('Raw');
         });
 
-        test('default properties / attributes', function() {
-            expect(widget.getAttribute('api-key')).to.be.eql('');
+        test('properly set/get default properties/attributes', function() {
+            var map             = [
+                ['apiKey', 'api-key', ''],
+                ['username', 'username', 'tony_bogdanov'],
+                ['offset', 'offset', 0],
+                ['limit', 'limit', 10],
+                ['ttl', 'ttl', 900],
+                ['template', 'template', 't1'],
+                ['templateItem', 'template-item', 't2'],
+                ['templateError', 'template-error', 't3'],
+                ['templateSpinner', 'template-spinner', 't4']
+            ];
+
+            for(var i in map) {
+                widget[map[i][0]] = map[i][2];
+            }
+
+            for(var i in map) {
+                expect(widget.hasAttribute(map[i][1])).to.equal(true);
+                expect(widget.getAttribute(map[i][1])).to.equal(map[i][2]);
+            }
+        });
+
+        test('onError/onFetchError', function() {
+            var original        = widget.innerHTML;
+            widget.onError('error');
+
+            var errored         = widget.innerHTML;
+            expect(errored).to.notEqual(original);
         });
 
         a11ySuite('Raw');

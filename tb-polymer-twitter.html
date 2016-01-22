@@ -76,12 +76,6 @@
         _apiURL:                    'http://api.tonybogdanov.com/twitter',
 
         ready:                      function() {
-            var $this               = $(this);
-
-            if(this.templateSpinner.length) {
-                $this.html(this.templateSpinner);
-            }
-
             this.loadItems();
         },
 
@@ -156,6 +150,11 @@
 
         loadItems:                  function() {
             var self                = this;
+
+            if(this.templateSpinner.length) {
+                $(this).html(this.templateSpinner);
+            }
+
             $.ajax({
                 url:                this._apiURL,
                 data:               {
