@@ -1,5 +1,6 @@
 {
   "name": "tb-polymer-twitter",
+  "version": "1.1",
   "homepage": "https://github.com/TonyBogdanov/tb-polymer-twitter",
   "authors": [
     "Tony Bogdanov <tonybogdanov@gmail.com>"
