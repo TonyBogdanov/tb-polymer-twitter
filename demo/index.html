@@ -1,7 +1,6 @@
 <!doctype html>
 <html>
 <head>
-
     <meta charset="utf-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge,chrome=1">
     <meta name="viewport" content="width=device-width, minimum-scale=1.0, initial-scale=1, user-scalable=yes">
@@ -43,6 +42,16 @@
         <td width="50%" valign="top">
             <h1>Skin: Default</h1>
             <tb-polymer-twitter limit="3" skin="default"></tb-polymer-twitter>
+            <form action="#" onsubmit="return false" style="width:300px;">
+                <paper-input name="api_key" label="API Key"></paper-input>
+                <paper-input name="username" label="Username"></paper-input>
+                <paper-button raised>Reload</paper-button>
+            </form>
+            <p>&nbsp;</p>
+        </td>
+        <td width="50%" valign="top">
+            <h1>Skin: Slider</h1>
+            <tb-polymer-twitter limit="3" skin="slider"></tb-polymer-twitter>
             <form action="#" onsubmit="return false" style="width:300px;">
                 <paper-input name="api_key" label="API Key"></paper-input>
                 <paper-input name="username" label="Username"></paper-input>

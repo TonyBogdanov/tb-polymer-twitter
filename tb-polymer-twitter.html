@@ -143,12 +143,32 @@
                 type:               String,
                 reflectToAttribute: true,
                 value:              ''
+            },
+
+            /**
+             * Specify additional options specific to the chosen skin (if any).
+             *
+             * **Skin: Default.**
+             *
+             * There are no additional options used by this skin.
+             *
+             * **Skin: Slider**
+             *
+             * There are no additional options used by this skin.
+             */
+            skinOptions:            {
+                type:               Object,
+                reflectToAttribute: true,
+                value:              {}
             }
         },
 
         _apiURL:                    'http://api.tonybogdanov.com/twitter',
 
         ready:                      function() {
+
+            console.log(this.skinOptions);
+
             this.loadSkin();
             if(this.activate) {
                 this.loadItems();

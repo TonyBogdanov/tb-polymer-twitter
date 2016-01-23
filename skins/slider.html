@@ -1,0 +1,39 @@
+<script>
+    tbPolymerTwitterSkinSlider          = function() {
+        // Extend
+        tbPolymerTwitterSkinDefault.call(this);
+
+        // Wrapper
+        this.template                   = '<div class="tb-polymer-twitter-slider">' + this.template + '</div>';
+
+        // Formatting
+        var self                        = this;
+        var $self                       = $(self);
+        var originalHandler             = this.onFetchSuccess;
+        this.onFetchSuccess             = function(data) {
+            originalHandler.call(self, data);
+
+            var $list                   = $self.children('.tb-polymer-twitter-slider').children('ul');
+            var $listItems              = $list.children('li');
+
+            var $controls               = $('<ul class="tb-polymer-twitter-slider-controls"/>');
+            $listItems.each(function() {
+                var $listItem           = $(this);
+                var $anchor             = $('<a/>').click(function(e) {
+                    e.preventDefault();
+
+                    $anchor.parent().siblings('.active').removeClass('active');
+                    $listItem.siblings('.active').removeClass('active');
+                    $.frame(function() {
+                        $anchor.parent().addClass('active');
+                        $listItem.addClass('active');
+                    });
+                });
+                var $control            = $('<li/>').append($anchor);
+                $controls.append($control);
+            });
+
+            $list.after($controls);
+        };
+    };
+</script>
