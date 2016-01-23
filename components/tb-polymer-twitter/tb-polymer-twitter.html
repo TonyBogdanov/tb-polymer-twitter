@@ -1,0 +1,338 @@
+<link rel="import" href="./deps/imports.html">
+
+<!--
+`<tb-polymer-twitter>` provides a flexible and extensible "widget"-like element for displaying twitter feeds.
+`api-key` and `username` are both required for the element to work.
+
+@demo
+-->
+<dom-module id="tb-polymer-twitter">
+    <template>
+        <style>
+            :host {
+                display: block;
+                width: 100%;
+            }
+        </style>
+    </template>
+</dom-module>
+
+<script>
+    Polymer({
+        is:                         'tb-polymer-twitter',
+        properties:                 {
+            /**
+             * Add this attribute to make the widget fetch feed items immediately after initialized.
+             * Value is not needed.
+             */
+            activate:               {
+                type:               Boolean,
+                reflectToAttribute: true,
+                value:              false
+            },
+
+            /**
+             * Specify your http://api.tonybogdanov.com API key.
+             * Without this attribute, the widget will not work.
+             */
+            apiKey:                 {
+                type:               String,
+                reflectToAttribute: true,
+                value:              ''
+            },
+
+            /**
+             * Specify the twitter username for which to fetch feed items.
+             */
+            username:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              'tony_bogdanov'
+            },
+
+            /**
+             * Specify the number of feed items to skip from the beginning.
+             */
+            offset:                 {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              0
+            },
+
+            /**
+             * Specify the maximum number of feed items to display.
+             */
+            limit:                  {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              10
+            },
+
+            /**
+             * Specify a "time-to-live" in number of seconds.
+             * ( see http://api.tonybogdanov.com/documentation#api-twitter )
+             */
+            ttl:                    {
+                type:               Number,
+                reflectToAttribute: true,
+                value:              900
+            },
+
+            /**
+             * Specify the HTML template used to render the widget.
+             *
+             * The template must include 3 tokens: `{{start}}`, `{{item}}` and `{{stop}}` in this exact order.
+             * `{{start}}` will mark the start of the portion of markup that will be looped for each item, `{{stop}}`
+             * marks the end. For tech-savvy people that's similar to `foreach ... endforeach`.
+             *
+             * `{{item}}` will be replaced with the markup of each feed entry ( see `templateItem` ).
+             */
+            template:               {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>Items:</p>{{start}}{{item}}<hr />{{stop}}'
+            },
+
+            /**
+             * Specify the HTML template used to render a single feed item in the context of `template`.
+             *
+             * The following tokens will be replaced with their respective values returned by the API:
+             * `{{date}}`, `{{url}}`, `{{text}}`, `{{html}}`, `{{user.name}}`, `{{user.scree_name}}` and `{{user.url}}`.
+             *
+             * To filter the value of each token see `filter`.
+             */
+            templateItem:           {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>date: {{date}}<br />url: {{url}}<br />text: {{text}}, html: {{html}}<br />user.name: {{user.name}}<br />user.screen_name: {{user.screen_name}}<br />user.url: {{user.url}}</p>'
+            },
+
+            /**
+             * Specify the HTML template used to render API and widget error messages.
+             * A `{{message}}` token (if present) will be replaced with the error message.
+             */
+            templateError:          {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<p>{{message}}</p>'
+            },
+
+            /**
+             * Specify the HTML template used to render a "loading" spinner animation while waiting to fetch and
+             * process feed items. You can also set this to an empty string to essentially disable it.
+             */
+            templateSpinner:        {
+                type:               String,
+                reflectToAttribute: true,
+                value:              '<paper-spinner active></paper-spinner>'
+            },
+
+            /**
+             * Optionally you can specify a skin name to modify the default appearance of the widget. An example skin
+             * name `default` will resolve to a `tbPolymerTwitterSkinDefault` variable which must be defined as a valid
+             * function, and be globally available (e.g. accessible via `window.tbPolymerTwitterSkinDefault`).
+             *
+             * If you set the skin name after the `ready` event has fired, you will also have to call `loadSkin()` to
+             * make sure it has been applied properly.
+             *
+             * All built-in skins are available under the `skins` directory. To build your own you simply need to define
+             * it globally and do all your modifications inside the function. `this` will be a reference to the
+             * `tb-polymer-twitter` element you are modifying.
+             */
+            skin:                   {
+                type:               String,
+                reflectToAttribute: true,
+                value:              ''
+            },
+
+            /**
+             * Specify additional options specific to the chosen skin (if any).
+             *
+             * **Skin: Default.**
+             *
+             * There are no additional options used by this skin.
+             *
+             * **Skin: Slider**
+             *
+             * There are no additional options used by this skin.
+             */
+            skinOptions:            {
+                type:               Object,
+                reflectToAttribute: true,
+                value:              {}
+            }
+        },
+
+        _apiURL:                    'http://api.tonybogdanov.com/twitter',
+
+        ready:                      function() {
+
+            console.log(this.skinOptions);
+
+            this.loadSkin();
+            if(this.activate) {
+                this.loadItems();
+            }
+        },
+
+        /**
+         * Called after a successful API call.
+         * `data` will be the resulting JSON decoded object.
+         *
+         * @param data JSON decoded object.
+         */
+        onFetchSuccess:             function(data) {
+            $(this).html(this.prepareTemplate(data.items));
+        },
+
+        /**
+         * Called when an error occurs while attempting to fetch feed items from the API.
+         *
+         * @param message Error message
+         */
+        onFetchError:               function(message) {
+            this.onError(message);
+        },
+
+        /**
+         * Called when a general error occurs (including API ones).
+         *
+         * @param message Error message
+         */
+        onError:                    function(message) {
+            $(this).html(this.templateError.replace('{{message}}', message));
+        },
+
+        /**
+         * Used to filter token values.
+         * Override this to format any of the values returned by the API.
+         *
+         * @param name Token name
+         * @param value Token original value
+         * @returns {*} Token filtered value
+         */
+        filter:                     function(name, value) {
+            return value;
+        },
+
+        /**
+         * Prepares the final element markup for the specified feed items.
+         *
+         * @param items
+         * @returns {*}
+         */
+        prepareTemplate:            function(items) {
+            var startIdx            = this.template.indexOf('{{start}}');
+            var itemIdx             = this.template.indexOf('{{item}}');
+            var stopIdx             = this.template.indexOf('{{stop}}');
+
+            if(0 > startIdx) {
+                return this.onError('Missing template token: {{start}}');
+            } else if(0 > itemIdx) {
+                return this.onError('Missing template token: {{item}}');
+            } else if(startIdx > itemIdx) {
+                return this.onError('Template token {{start}} must be before token {{item}}');
+            } else if(0 > stopIdx) {
+                return this.onError('Missing template token: {{stop}}');
+            } else if(stopIdx < itemIdx) {
+                return this.onError('Template token {{stop}} must be after token {{item}}');
+            }
+
+            var self                = this;
+            var result              = this.template.substr(0, startIdx);
+            var loop                = this.template.substr(startIdx + 9, stopIdx - startIdx - 9);
+
+            $.each(items, function() {
+                result              += loop.replace('{{item}}', self.prepareTemplateItem(this));
+            });
+
+            return result + this.template.substr(stopIdx + 8);
+        },
+
+        /**
+         * Prepares a single feed item element markup.
+         *
+         * @param data
+         * @returns {properties.templateItem|{type, reflectToAttribute, value}|*}
+         */
+        prepareTemplateItem:        function(data) {
+            var map                 = {};
+            var flatten             = function(keys, data) {
+                for(var key in data) {
+                    keys.push(key);
+
+                    if('object' == typeof data[key]) {
+                        flatten(keys, data[key]);
+                    } else {
+                        map[keys.join('.')] = data[key];
+                    }
+
+                    keys.pop();
+                }
+            };
+            flatten([], data);
+
+            var result              = this.templateItem;
+            for(var key in map) {
+                result              = result.replace('{{' + key + '}}', this.filter(key, map[key]));
+            }
+
+            return result;
+        },
+
+        /**
+         * Attempts to load and apply the skin specified by `skin`.
+         *
+         * @returns {*}
+         */
+        loadSkin:                   function() {
+            if(0 == this.skin.length) {
+                return;
+            }
+
+            var lookup              = 'tbPolymerTwitterSkin' + this.skin.substring(0, 1).toUpperCase() +
+                    this.skin.substring(1);
+
+            if('function' != typeof window[lookup]) {
+                return this.onError('No such skin: ' + lookup);
+            }
+
+            window[lookup].call(this);
+        },
+
+        /**
+         * Displays the loading spinner defined in `templateSpinner` and starts fetching feed items.
+         */
+        loadItems:                  function() {
+            var self                = this;
+
+            if(this.templateSpinner.length) {
+                $(this).html(this.templateSpinner);
+            }
+
+            $.ajax({
+                url:                this._apiURL,
+                data:               {
+                    api_key:        this.apiKey,
+                    username:       this.username,
+                    limit:          this.offset + ',' + this.limit,
+                    ttl:            this.ttl
+                },
+                success:            function(data) {
+                    if('undefined' != typeof data.error) {
+                        self.onFetchError('API error: ' + data.error);
+                    } else if('object' != typeof data.items) {
+                        self.onFetchError('API error: unknown');
+                    } else {
+                        self.onFetchSuccess(data);
+                    }
+                },
+                error:              function() {
+                    self.onFetchError('Could not reach API: ' + self._apiURL);
+                },
+                method:             'POST',
+                dataType:           'json'
+            });
+        }
+    });
+</script>

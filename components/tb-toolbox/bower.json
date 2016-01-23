@@ -1,0 +1,27 @@
+{
+  "name": "tb-toolbox",
+  "homepage": "https://github.com/TonyBogdanov/toolbox",
+  "authors": [
+    "Tony Bogdanov <tonybogdanov@gmail.com>"
+  ],
+  "description": "",
+  "moduleType": [],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests",
+    "build-js.cmd",
+    "scss/_toolbox-dev.scss"
+  ],
+  "dependencies": {
+    "mathsass": "~0.9.5",
+    "bourbon": "~4.2.6",
+    "bootstrap": "v4.0.0-alpha.2",
+    "jquery": "~2.2.0",
+    "jquery-bez": "~1.0.11",
+    "jquery.scrollTo": "~2.1.2"
+  }
+}

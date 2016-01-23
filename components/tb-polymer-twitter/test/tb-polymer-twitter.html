@@ -1,0 +1,117 @@
+<!doctype html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <title>tb-polymer-twitter tests</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0">
+
+    <script src="../../webcomponentsjs/webcomponents-lite.js"></script>
+    <script src="../../web-component-tester/browser.js"></script>
+    <script src="../../iron-test-helpers/mock-interactions.js"></script>
+
+    <link rel="import" href="../tb-polymer-twitter.html">
+</head>
+<body>
+
+<test-fixture id="Raw">
+    <template>
+        <tb-polymer-twitter></tb-polymer-twitter>
+    </template>
+</test-fixture>
+
+<script>
+    suite('<tb-polymer-twitter>', function() {
+        var widget;
+
+        setup(function() {
+            widget              = fixture('Raw');
+        });
+
+        test('properly set/get default properties/attributes', function() {
+            var map             = [
+                ['apiKey', 'api-key', ''],
+                ['username', 'username', 'tony_bogdanov'],
+                ['offset', 'offset', 0],
+                ['limit', 'limit', 10],
+                ['ttl', 'ttl', 900],
+                ['template', 'template', 't1'],
+                ['templateItem', 'template-item', 't2'],
+                ['templateError', 'template-error', 't3'],
+                ['templateSpinner', 'template-spinner', 't4']
+            ];
+
+            for(var i in map) {
+                widget[map[i][0]] = map[i][2];
+            }
+
+            for(var i in map) {
+                expect(widget.hasAttribute(map[i][1])).to.equal(true, 'missing attribute ' + map[i][1]);
+                expect(widget.getAttribute(map[i][1])).to.equal(map[i][2].toString(), 'unexpected value for attribute ' + map[i][1]);
+            }
+        });
+
+        test('onError/onFetchError', function() {
+            var original        = widget.innerHTML;
+            widget.onError('error');
+
+            var errored         = widget.innerHTML;
+            expect(errored).to.not.equal(original, 'element should have different html after onError call');
+
+            widget.innerHTML    = original;
+            widget.onFetchError('fetch_error');
+
+            var fetchErrored    = widget.innerHTML;
+            expect(fetchErrored).to.not.equal(original, 'element should have different html after onFetchError call than original');
+            expect(fetchErrored).to.not.equal(errored, 'element should have different html after onFetchError call than onError');
+        });
+
+        test('filter', function() {
+            expect('not_filtered').to.equal(widget.filter('test', 'not_filtered'), 'filter should not modify the value by default');
+        });
+
+        test('prepareTemplate', function(done) {
+            expect(widget.template).to.not.equal(widget.prepareTemplate());
+
+            widget.prepareTemplateItem = function() {
+                done();
+            };
+            widget.prepareTemplate([{}]);
+        });
+
+        test('prepareTemplateItem', function(done) {
+            expect(widget.templateItem).to.not.equal(widget.prepareTemplateItem({date: 1}));
+
+            widget.filter = function() {
+                done();
+            };
+            widget.prepareTemplateItem({date: 1});
+        });
+
+        test('loadItems', function(done) {
+            widget.onFetchSuccess = function() {
+                expect(true).to.equal(false, 'this should never have been reached');
+            };
+
+            widget.onFetchError = function(message) {
+                expect(message).to.contain('invalid_or_missing_api_key');
+                done();
+            };
+
+            widget.loadItems();
+        });
+
+        test('use custom skin', function() {
+            var noSkin      = widget.prepareTemplate({});
+
+            // No effect without loadSkin()
+            widget.skin     = 'default';
+            expect(noSkin).to.equal(widget.prepareTemplate({}));
+
+            widget.loadSkin();
+            expect(noSkin).to.not.equal(widget.prepareTemplate({}));
+        });
+    });
+
+</script>
+</body>
+</html>
