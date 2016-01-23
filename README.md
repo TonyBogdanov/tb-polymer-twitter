@@ -1,4 +1,4 @@
-# tb-polymer-twitter 1.1
+# tb-polymer-twitter
 
 [![Build Status](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter.svg?branch=master)](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter)
 
