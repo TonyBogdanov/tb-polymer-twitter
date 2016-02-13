@@ -1,6 +1,7 @@
 # tb-polymer-twitter
 
 [![Build Status](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter.svg?branch=master)](https://travis-ci.org/TonyBogdanov/tb-polymer-twitter)
+[![Buy Me a Coffee](http://static.tonybogdanov.com/github/coffee.svg)](http://ko-fi.co/1236KUKJNC96B)
 
 [Demo & Documentation](http://tonybogdanov.github.io/tb-polymer-twitter/components/tb-polymer-twitter/) |
 [Tests](http://tonybogdanov.github.io/tb-polymer-twitter/components/tb-polymer-twitter/test/)
